@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Error from "./Error";
 
-const Form = ({setPacientes, pacientes}) => {	
+const Form = ({setPacientes, pacientes, paciente, setPaciente}) => {	
 	const [mascota, setMascota] = useState("");
 	const [propietario, setPropietario] = useState("");
 	const [email, setEmail] = useState("");
@@ -9,6 +9,16 @@ const Form = ({setPacientes, pacientes}) => {
 	const [sintomas, setSintomas] = useState("");
 
 	const [error, setError] = useState(false);
+
+	useEffect(() => {
+		if (Object.keys(paciente).length > 0) {
+			setMascota(paciente.mascota);
+			setPropietario(paciente.propietario);
+			setEmail(paciente.email);
+			setFecha(paciente.fecha);
+			setSintomas(paciente.sintomas);
+		}
+	}, [paciente])
 
 	const generarId = () => {
 		const random = Math.random().toString(36).substring(2);
@@ -34,10 +44,18 @@ const Form = ({setPacientes, pacientes}) => {
 			email, 
 			fecha, 
 			sintomas,
-			id: generarId()
 		}
 
-		setPacientes([...pacientes, objetoPaciente]);
+		if (paciente.id) {
+			objetoPaciente.id = paciente.id;
+			const pacientesActualizados = pacientes.map(p => p.id === paciente.id ? objetoPaciente : p);
+			setPacientes(pacientesActualizados);
+			setPaciente({});
+		} else {	
+			objetoPaciente.id = generarId();		
+			setPacientes([...pacientes, objetoPaciente]);
+		}
+
 
 		setMascota("");
 		setPropietario("");
@@ -158,7 +176,7 @@ const Form = ({setPacientes, pacientes}) => {
 
 				<input
 					type="submit"
-					value="Agregar paciente"
+					value={paciente.id ? "Editar Paciente" : "Agregar Paciente"}
 					className="bg-indigo-600 w-full p-3 text-white uppercase font-bold hover:bg-indigo-800 cursor-pointer transition-all"
 				/>
 			</form>
